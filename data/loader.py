@@ -6,6 +6,7 @@ import pathlib
 import random
 import tensorflow as tf
 import numpy as np
+from data_augmentation import aug_fn
 
 
 class PHASE(Enum):
@@ -86,14 +87,21 @@ class DIODEDataset(DepthLoader):
         return image, depth * mask
 
 
-def create_train_dataset(dataset_path, batch_size):
-    data = DIODEDataset(dataset_path)
-    dataset_generator = tf.data.Dataset.from_generator(data.train_data_generator(),
-                                                       output_types=(tf.string, tf.string, tf.string),
-                                                       output_shapes=((), (), ())).repeat()
+def augment_and_scale(aug_fn, image, depth):
+    aug_image, aug_depth = tf.numpy_function(func=aug_fn, inp=[image, depth],
+                                             Tout=[tf.uint8, tf.float32])
+    #return (tf.cast(aug_image, tf.float32) / 255.0) - 0.5, aug_depth
+    return aug_image, aug_depth
 
-    return dataset_generator.map(DIODEDataset.tf_load_pair, num_parallel_calls=tf.data.AUTOTUNE) \
-        .batch(batch_size).repeat()
+
+def create_train_dataset(dataset_path):
+    train_data_generator = DIODEDataset(dataset_path).train_data_generator()
+    return tf.data.Dataset.from_generator(train_data_generator,
+                                          output_types=(tf.string, tf.string, tf.string),
+                                          output_shapes=((), (), ())) \
+        .map(DIODEDataset.tf_load_pair, num_parallel_calls=tf.data.AUTOTUNE) \
+        .map(lambda image, depth: augment_and_scale(aug_fn, image, depth),
+             num_parallel_calls=tf.data.AUTOTUNE)
 
 
 if __name__ == "__main__":
