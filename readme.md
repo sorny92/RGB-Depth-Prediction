@@ -1,6 +1,8 @@
 # RGB depth estimation
 
-## Datasets
+## Related work
+
+### Datasets
 
 For the task of depth estimation there's multiple sources of data.  
 As this case describes, a viable dataset is one with RGB images and depth maps as outputs.
@@ -9,8 +11,6 @@ Nowadays, this is done through several systems: through disparity maps in stereo
 matching system.
 Each one of them has different advantages and disadvantages, which I'm not going to study here, but they should be taken
 into account.
-
-### Sources
 
 For this task we can look for some datasets in one of the most popular resources pages:
 
@@ -23,7 +23,8 @@ For this task we can look for some datasets in one of the most popular resources
         * [ETH3D](https://www.eth3d.net/overview): Can be downloaded
         * [UASOL](https://osf.io/64532/): Can be downloaded
         * [Holopix50k](https://github.com/leiainc/holopix50k): Collection in the wild and it can be downloaded.
-        * [WSVD](https://sites.google.com/view/wsvd/home): More than 500 videos from youtube recorded in stereoscopic. Same as the others
+        * [WSVD](https://sites.google.com/view/wsvd/home): More than 500 videos from youtube recorded in stereoscopic.
+          Same as the others
     * **RGB-D**:
         * Real data:
             * [DIODE](https://diode-dataset.org/): Promising dataset as it contains data from indoor and
@@ -39,7 +40,8 @@ For this task we can look for some datasets in one of the most popular resources
               data. It can also be downloaded.
             * [EDEN](https://lhoangan.github.io/eden/): Synthetic dataset but it's specific for gardens it might not be
               great as it could overfit. It's nice that it has segmentation mask too.
-            * [Virtual KITTI](https://europe.naverlabs.com/research/computer-vision/proxy-virtual-worlds-vkitti-1/): Dataset with 
+            * [Virtual KITTI](https://europe.naverlabs.com/research/computer-vision/proxy-virtual-worlds-vkitti-1/):
+              Dataset with
             * [SUNCG](https://sscnet.cs.princeton.edu/): Interesting dataset for pretraining as it contains synthetic
               data
               that is dense. Can't be downloaded due to
@@ -52,3 +54,13 @@ For this task we can look for some datasets in one of the most popular resources
 
 * [Huggingface](https://huggingface.co/datasets?task_categories=task_categories:depth-estimation&sort=downloads):
   There's only one dataset available for this task in Huggingface which is nyu_depth_v2.
+
+### Models
+
+## Method
+For this project I will use [DIODE](https://diode-dataset.org/) as it's much bigger than NYUv2 with more variety of
+scenes so hopefully a pretrained model in NYUv2 can be used.
+
+## Results
+
+## Future work
