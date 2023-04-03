@@ -22,9 +22,7 @@ dataset_path = os.getenv("DATASET_PATH")
 
 BATCH_SIZE = 4
 train_data_path = pathlib.Path(dataset_path) / "train"
-train_dataset, val_dataset = create_train_val_dataset(train_data_path, aug_fn)
-train_dataset = train_dataset.batch(BATCH_SIZE)
-val_dataset = val_dataset.batch(1)
+train_dataset, val_dataset = create_train_val_dataset(train_data_path, aug_fn, BATCH_SIZE)
 
 from datetime import datetime
 
