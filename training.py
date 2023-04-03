@@ -10,12 +10,17 @@ from data.data_augmentation import aug_fn
 
 tf.config.run_functions_eagerly(True)
 
-loss = keras.losses.MeanSquaredError()
+def SSIMLoss(y_true, y_pred):
+    return 1 - tf.reduce_mean(tf.image.ssim(y_true, y_pred, 1.0))
+
+
+def custom_loss(y_true, y_pred):
+    return keras.losses.mean_squared_error(y_true, y_pred) + SSIMLoss(y_true, y_pred)
 
 model = DeeplabV3Plus(image_size=512)
 model.compile(
     optimizer=keras.optimizers.Adam(learning_rate=0.001),
-    loss=loss,
+    loss=custom_loss,
     metrics=[tf.keras.metrics.MeanAbsoluteError()],
 )
 
