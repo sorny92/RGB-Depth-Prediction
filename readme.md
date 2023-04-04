@@ -47,7 +47,7 @@ For this task we can look for some datasets in one of the most popular resources
               that is dense. Can't be downloaded due to
               a [legal problem](https://futurism.com/tech-suing-facebook-princeton-data).
             * [SuperCaustics](https://github.com/MMehdiMousavi/SuperCaustics): synthetic data from UE. It could be
-              useful to generate data on the fly but it doesn't have a dataset with depth.
+              useful to generate data on the fly, but it doesn't have a dataset with depth.
 
     * **Lidar/Pointcloud**:
         * [ETH3D](https://www.eth3d.net/overview):
@@ -58,9 +58,30 @@ For this task we can look for some datasets in one of the most popular resources
 ### Models
 
 ## Method
+
 For this project I will use [DIODE](https://diode-dataset.org/) as it's much bigger than NYUv2 with more variety of
 scenes so hopefully a pretrained model in NYUv2 can be used.
 
+### Data preparation
+
+### Loss function
+
+### Metrics
+
 ## Results
+The current model achieves realtime processing speed at 512x512 in a RTX3060 without quantization or layer fusion.
 
 ## Future work
+
+* The model need to be trained for longer as it never got to achieve a plateau.
+* The depth maps in the DIODE dataset have a lot of null values where there's no depth data, specially in the outdoor
+  set. This needs to be addressed as the model has a bias to set everything mostly black and it's good enough in many
+  cases.
+* In works as NYUv2 they apply image [inpainting](https://www.cs.huji.ac.il/~yweiss/Colorization/) to fill the gaps in
+  the depth map, but there's definitely more options
+  as [this](https://www.researchgate.net/figure/Inpainting-Classification_fig3_306310171)
+* The model used is based on a backbone that is not the most efficient, Resnet50. A model based in something more
+  modern, for example EfficientNet would definitely bring better results in less time.
+* Apply quantization to the model to decrease latency.
+* Better pretraining making use of the extensive access to synthetic data in this domain.
+* 

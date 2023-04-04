@@ -10,14 +10,24 @@ from data.data_augmentation import aug_fn
 
 
 def SSIMLoss(y_true, y_pred):
-    return 1 - tf.reduce_mean(tf.image.ssim(y_true, y_pred, 1.0))
+    return (1 - tf.reduce_mean(tf.image.ssim(y_true, y_pred, 1.0))) / 2
+
+
+def SobelLoss(y_true, y_pred):
+    y_true_ = tf.image.sobel_edges(y_true)
+    y_pred_ = tf.image.sobel_edges(y_pred)
+    return tf.reduce_mean(tf.abs(y_true_ - y_pred_))
 
 
 def custom_loss(y_true, y_pred):
-    return keras.losses.mean_squared_error(y_true, y_pred) + SSIMLoss(y_true, y_pred)
+    alpha = 0.1
+    return alpha * keras.losses.mean_absolute_error(y_true, y_pred) \
+        + SobelLoss(y_true, y_pred) + SSIMLoss(y_true, y_pred)
 
 
 if __name__ == "__main__":
+    tf.config.run_functions_eagerly(True)
+
     model = DeeplabV3Plus(image_size=512)
     model.compile(
         optimizer=keras.optimizers.Adam(learning_rate=0.001),
