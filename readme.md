@@ -1,6 +1,37 @@
 # RGB depth estimation
 
-### Datasets
+## How to run
+
+### Train
+
+Configure [training.py](training.py) as desired. You need to export the ENVVAR `DATASET_PATH` to point to DIODE train
+folder.
+
+```bash
+python -m training
+```
+
+### Run in real time
+```bash
+python -m run_webcam
+usage: Run with a webcam feed or a video [-h] saved_model_path input_video
+```
+There's a saved_model in the repository to point to.
+
+If you have trained a model use:
+```bash
+python -m export_model
+usage: Export model [-h] model_weights export_path
+```
+To export the checkpoint to saved model for better inference time.
+
+### Visualize dataset
+Modify [visualizer.py](data%2Fvisualizer.py) as needed to visualize the train or val datasets.
+```bash
+python -m data.visualizer
+```
+
+## Datasets
 
 For the task of depth estimation there's multiple sources of data.  
 As this case describes, a viable dataset is one with RGB images and depth maps as outputs.
