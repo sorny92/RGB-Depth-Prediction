@@ -44,8 +44,8 @@ class DepthLoader:
 class DIODEDataset(DepthLoader):
     def __init__(self, data_path: pathlib.Path, train_val_split):
         super().__init__(data_path, train_val_split)
-        # self.images_type = ["indoors", "outdoor"]
-        self.images_type = ["indoors"]
+        self.images_type = ["indoors", "outdoor"]
+        #self.images_type = ["indoors"]
         scans = []
         for t in self.images_type:
             for scan in (self.data_path / t).glob("*/*"):

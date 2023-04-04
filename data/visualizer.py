@@ -17,5 +17,6 @@ def visualize_images(dataset_path):
         cv2.imshow("depth", depth[0] / np.max(depth[0]))
         cv2.waitKey(0)
 
+
 if __name__ == "__main__":
     visualize_images(pathlib.Path(os.getenv("DATASET_PATH")) / "val")

@@ -15,7 +15,7 @@ def quantize_model(saved_model_path, dataset_generator):
     converter = tf.lite.TFLiteConverter.from_saved_model(saved_model_path)
     converter.optimizations = [tf.lite.Optimize.DEFAULT]
     converter.representative_dataset = dataset_generator
-    tflite_quant_model = converter.convert()
+    converter.convert()
 
 
 if __name__ == "__main__":
