@@ -44,7 +44,7 @@ class DepthLoader:
 class DIODEDataset(DepthLoader):
     def __init__(self, data_path: pathlib.Path, train_val_split):
         super().__init__(data_path, train_val_split)
-        #self.images_type = ["indoors", "outdoor"]
+        # self.images_type = ["indoors", "outdoor"]
         self.images_type = ["indoors"]
         scans = []
         for t in self.images_type:
@@ -57,7 +57,8 @@ class DIODEDataset(DepthLoader):
             self.train_items.extend(scan.glob("*.png"))
         for scan in scans[n_scans_for_train_set:]:
             self.val_items.extend(scan.glob("*.png"))
-
+        print(f"Elements in train dataset: {len(self.train_items)}")
+        print(f"Elements in val dataset: {len(self.val_items)}")
 
     @staticmethod
     @tf.function
@@ -67,7 +68,7 @@ class DIODEDataset(DepthLoader):
 
         def crop_and_resize(image_to_crop_resize):
             cropped = tf.image.resize_with_crop_or_pad(image_to_crop_resize, 768, 768)
-            return tf.image.resize(cropped, (512, 512))/255.0
+            return tf.image.resize(cropped, (512, 512)) / 255.0
 
         image = tf.image.decode_png(tf.io.read_file(image_path))
         depth = tf.py_function(load_numpy, inp=[depth_path], Tout=tf.float32)

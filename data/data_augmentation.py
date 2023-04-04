@@ -4,10 +4,10 @@ from albumentations import (
 )
 
 pixel_transforms = Compose([
-    RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.2, p=0.5),
-    HueSaturationValue(hue_shift_limit=10, sat_shift_limit=10, val_shift_limit=10, p=0.5),
-    CoarseDropout(max_holes=10, max_height=20, max_width=20,
-                  min_holes=1, min_height=5, min_width=5),
+    #RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.2, p=0.5),
+    #HueSaturationValue(hue_shift_limit=10, sat_shift_limit=10, val_shift_limit=10, p=0.5),
+    #CoarseDropout(max_holes=10, max_height=20, max_width=20,
+    #              min_holes=1, min_height=5, min_width=5),
     PixelDropout(0.1),
     ImageCompression(quality_lower=50, quality_upper=100, p=0.5),
 ])

@@ -55,7 +55,12 @@ For this task we can look for some datasets in one of the most popular resources
 * [Huggingface](https://huggingface.co/datasets?task_categories=task_categories:depth-estimation&sort=downloads):
   There's only one dataset available for this task in Huggingface which is nyu_depth_v2.
 
-### Models
+## Models
+
+This is a task which is considered as a image to image problem. The input is an image and the output is another image.
+For this problem the output is a depth map, so the values are continuous therefor it's a regression per pixel.
+
+Any architecture
 
 ## Method
 
