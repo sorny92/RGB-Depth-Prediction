@@ -1,7 +1,5 @@
 # RGB depth estimation
 
-## Related work
-
 ### Datasets
 
 For the task of depth estimation there's multiple sources of data.  
@@ -60,21 +58,68 @@ For this task we can look for some datasets in one of the most popular resources
 This is a task which is considered as a image to image problem. The input is an image and the output is another image.
 For this problem the output is a depth map, so the values are continuous therefor it's a regression per pixel.
 
-Any architecture
+In the file [model.py](model.py) it can be seen the model used for this task.
+In this case a model based on DeepLabv3 as it's mostly used for image segmentation, the last layer can be changed to
+just one channel without activation, so it can solve regression problems.
+
+### Data preparation
+
+On the file [loader.py](data%2Floader.py) it can be seen the pipeline for data loading.
+A generator is created that will feed paths to images so tensorflow can automatically prefetch the images and process
+them to have them ready for the GPU when it needs them.
+
+The scaling used is the one used for imagenet as the backbone of the model is pretrained in it.
 
 ## Method
 
 For this project I will use [DIODE](https://diode-dataset.org/) as it's much bigger than NYUv2 with more variety of
-scenes so hopefully a pretrained model in NYUv2 can be used.
+scenes.
 
-### Data preparation
+For the training it's used the whole train set split in 90% of the scenes for training and the other 10% for validation.
+A set of data augmentation operations are used to train that can be seen in the
+file [data_augmentation.py](data%2Fdata_augmentation.py).
+
+The training pipeline can be found in the file [training.py](training.py).
+For this task as the literature similar to this project does, Adam with default learning rate is used.
+The learning rate decay is also used during training to reduce when the learning achieves a plateau.
+The loss used will be detailed in the next point.
 
 ### Loss function
 
+The loss function used is the one used in [here](http://cs231n.stanford.edu/reports/2022/pdfs/58.pdf) and it's
+implemented in [training.py](training.py).
+
+It consists in three parts:
+
+* L1 loss over the whole image
+* L1 loss over the edges of the image
+* structural similarity of the image.
+  The loss is known in this task to help converge faster.
+  ![MAE.png](assets%2FMAE.png)
+  In the previous image you can see three training with the same data but with one component of the loss, with two and
+  the three of them.
+
 ### Metrics
 
+Metrics used are the standard for the task:
+
+* Mean absolute error
+* Root mean squared error
+* And thresold
+
 ## Results
+
+Over validation set (including indoor and outdoor) of DIODE the model [model-04-182311](models%2Fmodel-04-182311)
+achieves the next results:
+
+* mean_absolute_error: 0.0215
+* root_mean_squared_error: 0.0403
+* delta1: 0.2337
+* delta2: 0.4377
+* delta3: 0.5808
+
 The current model achieves realtime processing speed at 512x512 in a RTX3060 without quantization or layer fusion.
+In a modern 12 threads system CPU can run at 2FPS.
 
 ## Future work
 
@@ -89,4 +134,3 @@ The current model achieves realtime processing speed at 512x512 in a RTX3060 wit
   modern, for example EfficientNet would definitely bring better results in less time.
 * Apply quantization to the model to decrease latency.
 * Better pretraining making use of the extensive access to synthetic data in this domain.
-* 
