@@ -1,6 +1,5 @@
 import math
 import os
-from abc import ABC, abstractmethod
 from enum import Enum
 import pathlib
 import random
@@ -13,7 +12,7 @@ class PHASE(Enum):
     TEST = "test"
 
 
-class DepthLoader(ABC):
+class DepthLoader:
     def __init__(self, data_path: pathlib.Path, train_val_split):
         self.data_path = pathlib.Path(data_path)
         self.train_val_split = train_val_split
@@ -41,15 +40,12 @@ class DepthLoader(ABC):
     def val_data_generator(self):
         return self.__data_generator(self.val_items)
 
-    @abstractmethod
-    def get_pair(self, idx):
-        pass
-
 
 class DIODEDataset(DepthLoader):
     def __init__(self, data_path: pathlib.Path, train_val_split):
         super().__init__(data_path, train_val_split)
-        self.images_type = ["indoors", "outdoor"]
+        #self.images_type = ["indoors", "outdoor"]
+        self.images_type = ["indoors"]
         scans = []
         for t in self.images_type:
             for scan in (self.data_path / t).glob("*/*"):
@@ -62,9 +58,6 @@ class DIODEDataset(DepthLoader):
         for scan in scans[n_scans_for_train_set:]:
             self.val_items.extend(scan.glob("*.png"))
 
-    def get_pair(self, idx=None):
-        if idx is None:
-            random.randint()
 
     @staticmethod
     @tf.function
@@ -111,7 +104,6 @@ def create_train_val_dataset(dataset_path, aug_fn, batch_size, train_val_split=0
                                                      output_shapes=((), (), ())) \
             .map(DIODEDataset.tf_load_pair, num_parallel_calls=tf.data.AUTOTUNE).batch(1) \
             .map(scale, num_parallel_calls=tf.data.AUTOTUNE).prefetch(tf.data.AUTOTUNE)
-
     return train_dataset, val_dataset
 
 

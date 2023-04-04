@@ -7,7 +7,7 @@ from data.data_augmentation import aug_fn
 
 
 def visualize_images(dataset_path):
-    _, dataset = create_train_val_dataset(dataset_path, aug_fn, 1)
+    dataset, _ = create_train_val_dataset(dataset_path, aug_fn, 1)
     it = dataset.repeat().as_numpy_iterator()
     for image, depth in it:
         BGR_image = cv2.cvtColor(image[0], cv2.COLOR_RGB2BGR)
@@ -17,4 +17,5 @@ def visualize_images(dataset_path):
         cv2.imshow("depth", depth[0] / np.max(depth[0]))
         cv2.waitKey(0)
 
-visualize_images(pathlib.Path(os.getenv("DATASET_PATH")) / "val")
+if __name__ == "__main__":
+    visualize_images(pathlib.Path(os.getenv("DATASET_PATH")) / "val")
