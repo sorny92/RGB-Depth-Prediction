@@ -44,8 +44,8 @@ class DepthLoader:
 class DIODEDataset(DepthLoader):
     def __init__(self, data_path: pathlib.Path, train_val_split):
         super().__init__(data_path, train_val_split)
-        self.images_type = ["indoors", "outdoor"]
-        #self.images_type = ["indoors"]
+        #self.images_type = ["indoors", "outdoor"]
+        self.images_type = ["indoors"]
         scans = []
         for t in self.images_type:
             for scan in (self.data_path / t).glob("*/*"):
@@ -68,13 +68,13 @@ class DIODEDataset(DepthLoader):
 
         def crop_and_resize(image_to_crop_resize):
             cropped = tf.image.resize_with_crop_or_pad(image_to_crop_resize, 768, 768)
-            return tf.image.resize(cropped, (512, 512)) / 255.0
+            return tf.image.resize(cropped, (512, 512))
 
         image = tf.image.decode_png(tf.io.read_file(image_path))
         depth = tf.py_function(load_numpy, inp=[depth_path], Tout=tf.float32)
         mask = tf.expand_dims(tf.py_function(load_numpy, inp=[mask_path], Tout=tf.float32), -1)
 
-        return tf.image.convert_image_dtype(crop_and_resize(image), dtype=tf.uint8), \
+        return tf.image.convert_image_dtype(crop_and_resize(image) / 255.0, dtype=tf.uint8), \
             crop_and_resize(depth * mask)
 
 

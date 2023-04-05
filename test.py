@@ -5,6 +5,8 @@ from tensorflow import keras
 import tensorflow as tf
 from training import custom_loss
 import argparse
+import cv2
+import numpy as np
 
 
 def ThresholdAccuracy(y_true, y_pred, threshold=1.25):
@@ -39,6 +41,28 @@ def test(model_checkpoint, model, dataset_path):
 
     print(model.evaluate(test_dataset))
 
+def visualize_images(model_checkpoint, model, dataset_path):
+    model.load_weights(model_checkpoint)
+    model.compile(
+        optimizer=keras.optimizers.Adam(learning_rate=0.001),
+        loss=custom_loss,
+        metrics=[tf.keras.metrics.MeanAbsoluteError(),
+                 tf.keras.metrics.RootMeanSquaredError(),
+                 delta1, delta2, delta3],
+    )
+    _, dataset = create_train_val_dataset(dataset_path, aug_fn, 4, train_val_split=0)
+    it = dataset.repeat().as_numpy_iterator()
+    for image, depth in it:
+        result = model.predict(image)
+        BGR_image = cv2.cvtColor(image[0], cv2.COLOR_RGB2BGR)
+        cv2.imshow("image", BGR_image)
+        print("Max depth in the image:", np.max(BGR_image))
+        print("Max depth in the image:", np.max(depth[0]))
+        print("Max depth in prediction:", np.max(result[0]))
+        print()
+        cv2.imshow("depth", depth[0] / np.max(depth[0]))
+        cv2.imshow("predict", result[0] / np.max(result[0]))
+        cv2.waitKey(0)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -46,6 +70,11 @@ if __name__ == "__main__":
         description='Export a tf checkpoint to savedModel and/or quantize the model')
     parser.add_argument('checkpoint')
     parser.add_argument('dataset')
+    parser.add_argument('-v', "--visualize", action="store_true")
     args = parser.parse_args()
 
-    test(args.checkpoint, DeeplabV3Plus(512), args.dataset)
+    if args.visualize:
+        visualize_images(args.checkpoint, DeeplabV3Plus(512), args.dataset)
+    else:
+        test(args.checkpoint, DeeplabV3Plus(512), args.dataset)
+
