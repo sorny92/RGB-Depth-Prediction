@@ -4,7 +4,7 @@ import io
 
 import tensorflow as tf
 from tensorflow import keras
-from model import DeeplabV3Plus
+from model import UNET
 from data.loader import create_train_val_dataset
 from data.data_augmentation import aug_fn
 
@@ -28,22 +28,22 @@ def custom_loss(y_true, y_pred):
 if __name__ == "__main__":
     tf.config.run_functions_eagerly(True)
 
-    model = DeeplabV3Plus(image_size=512)
+    model = UNET(image_size=512)
     model.compile(
-        optimizer=keras.optimizers.Adam(learning_rate=0.001),
+        optimizer=keras.optimizers.AdamW(learning_rate=0.0005),
         loss=custom_loss,
         metrics=[tf.keras.metrics.MeanAbsoluteError()],
     )
 
     dataset_path = os.getenv("DATASET_PATH")
 
-    BATCH_SIZE = 4
+    BATCH_SIZE = 8
     train_data_path = pathlib.Path(dataset_path) / "train"
     train_dataset, val_dataset = create_train_val_dataset(train_data_path, aug_fn, BATCH_SIZE)
 
     from datetime import datetime
 
-    run_id = f'{model.name}-{datetime.now().strftime("%m-%H%M%S")}'
+    run_id = f'{model.name}-{datetime.now().strftime("%m%d-%H%M%S")}'
     model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
         filepath=f"models/{run_id}/" + "{epoch:02d}-{val_mean_absolute_error:.2f}",
         save_weights_only=True,

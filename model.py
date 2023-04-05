@@ -67,6 +67,49 @@ def DeeplabV3Plus(image_size):
     return keras.Model(inputs=model_input, outputs=model_output)
 
 
+def UNET(image_size):
+    def upsampling(input_tensor, n_filters, concat_layer):
+        '''
+        Constitutes the block of Decoder
+        '''
+        # Bilinear 2x upsampling layer
+        x = layers.UpSampling2D(size=(2, 2), interpolation='bilinear')(input_tensor)
+        # concatenation with encoder block
+        x = layers.concatenate([x, concat_layer])
+        # decreasing the depth filters by half
+        x = layers.Conv2D(filters=n_filters, kernel_size=(3, 3), padding='same')(x)
+        x = layers.BatchNormalization()(x)
+        x = layers.Conv2D(filters=n_filters, kernel_size=(3, 3), padding='same')(x)
+        x = layers.BatchNormalization()(x)
+        return x
+
+    # Layer name of encoders to be concatenated
+    names = ['pool3_pool', 'pool2_pool', 'pool1', 'conv1/relu']
+    # Transfer learning approach without the classification head
+    encoder = keras.applications.DenseNet169(include_top=False, weights='imagenet',
+                                             input_shape=(image_size, image_size, 3))
+    # Model build
+    inputs = encoder.input
+    x = encoder.output
+    # decoder blocks linked with corresponding encoder blocks
+    bneck = layers.Conv2D(filters=1664, kernel_size=(1, 1), padding='same')(x)
+    x = layers.LeakyReLU(alpha=0.2)(bneck)
+    x = upsampling(bneck, 832, encoder.get_layer(names[0]).output)
+    x = layers.LeakyReLU(alpha=0.2)(x)
+    x = upsampling(x, 416, encoder.get_layer(names[1]).output)
+    x = layers.LeakyReLU(alpha=0.2)(x)
+    x = upsampling(x, 208, encoder.get_layer(names[2]).output)
+    x = layers.LeakyReLU(alpha=0.2)(x)
+    x = upsampling(x, 104, encoder.get_layer(names[3]).output)
+    x = layers.Conv2D(filters=1, kernel_size=(3, 3), padding='same')(x)
+    x = layers.UpSampling2D(
+        size=(image_size // x.shape[1], image_size // x.shape[2]),
+        interpolation="bilinear",
+    )(x)
+
+    return keras.Model(inputs=inputs, outputs=x)
+
+
 if __name__ == "__main__":
-    model = DeeplabV3Plus(image_size=512)
+    model = UNET(image_size=512)
     model.summary(line_length=160)
