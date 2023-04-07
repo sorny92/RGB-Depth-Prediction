@@ -106,7 +106,6 @@ def UNET(image_size):
         size=(image_size // x.shape[1], image_size // x.shape[2]),
         interpolation="bilinear",
     )(x)
-
     return keras.Model(inputs=inputs, outputs=x)
 
 

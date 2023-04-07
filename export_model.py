@@ -1,10 +1,10 @@
 import tensorflow as tf
 import argparse
-from model import DeeplabV3Plus
+from model import DeeplabV3Plus, UNET
 
 
 def generate_saved_model(model_weights, export_path):
-    model = DeeplabV3Plus(512)
+    model = UNET(512)
     print("LOADING THE MODEL")
     model.load_weights(model_weights)
     print("EXPORTING THE MODEL")

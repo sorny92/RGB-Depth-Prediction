@@ -85,7 +85,7 @@ def augment(aug_fn, image, depth):
 
 
 def scale(image, depth):
-    return tf.keras.applications.resnet.preprocess_input(image), depth
+    return tf.image.convert_image_dtype(image, dtype=tf.float32), tf.math.log(2.71*(depth/40)+1)
 
 
 def create_train_val_dataset(dataset_path, aug_fn, batch_size, train_val_split=0.9):
