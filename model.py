@@ -63,7 +63,7 @@ def DeeplabV3Plus(image_size):
         size=(image_size // x.shape[1], image_size // x.shape[2]),
         interpolation="bilinear",
     )(x)
-    model_output = layers.Conv2D(1, kernel_size=(1, 1), padding="same")(x)
+    model_output = layers.Conv2D(1, kernel_size=(1, 1), padding="same", activation="sigmoid")(x)
     return keras.Model(inputs=model_input, outputs=model_output)
 
 
@@ -94,14 +94,14 @@ def UNET(image_size):
     # decoder blocks linked with corresponding encoder blocks
     bneck = layers.Conv2D(filters=1664, kernel_size=(1, 1), padding='same')(x)
     x = layers.LeakyReLU(alpha=0.2)(bneck)
-    x = upsampling(bneck, 832, encoder.get_layer(names[0]).output)
+    x = upsampling(x, 832, encoder.get_layer(names[0]).output)
     x = layers.LeakyReLU(alpha=0.2)(x)
     x = upsampling(x, 416, encoder.get_layer(names[1]).output)
     x = layers.LeakyReLU(alpha=0.2)(x)
     x = upsampling(x, 208, encoder.get_layer(names[2]).output)
     x = layers.LeakyReLU(alpha=0.2)(x)
     x = upsampling(x, 104, encoder.get_layer(names[3]).output)
-    x = layers.Conv2D(filters=1, kernel_size=(3, 3), padding='same')(x)
+    x = layers.Conv2D(filters=1, kernel_size=(3, 3), padding='same', activation="sigmoid")(x)
     x = layers.UpSampling2D(
         size=(image_size // x.shape[1], image_size // x.shape[2]),
         interpolation="bilinear",

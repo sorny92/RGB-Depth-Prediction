@@ -44,7 +44,7 @@ class DepthLoader:
 class DIODEDataset(DepthLoader):
     def __init__(self, data_path: pathlib.Path, train_val_split):
         super().__init__(data_path, train_val_split)
-        #self.images_type = ["indoors", "outdoor"]
+        # self.images_type = ["indoors", "outdoor"]
         self.images_type = ["indoors"]
         scans = []
         for t in self.images_type:
@@ -52,6 +52,7 @@ class DIODEDataset(DepthLoader):
                 scans.append(scan)
 
         n_scans_for_train_set = math.ceil(len(scans) * self.train_val_split)
+        random.seed(1992)
         random.shuffle(scans)
         for scan in scans[:n_scans_for_train_set]:
             self.train_items.extend(scan.glob("*.png"))
@@ -85,7 +86,12 @@ def augment(aug_fn, image, depth):
 
 
 def scale(image, depth):
-    return tf.image.convert_image_dtype(image, dtype=tf.float32), tf.math.log(2.71*(depth/40)+1)
+    img_mean = tf.constant([98.42558877, 91.09861066, 86.32245039])
+    img_std = tf.constant([44.93833011, 45.5801206, 49.50943415])
+    depth_mean = 3.600834
+    depth_std = 4.563519
+    img_float = tf.image.convert_image_dtype(image, dtype=tf.float32)
+    return img_float, tf.math.log(depth + 1.0) / tf.math.log(tf.constant([20.0]))
 
 
 def create_train_val_dataset(dataset_path, aug_fn, batch_size, train_val_split=0.9):
@@ -96,8 +102,7 @@ def create_train_val_dataset(dataset_path, aug_fn, batch_size, train_val_split=0
                                                            tf.string, tf.string, tf.string),
                                                        output_shapes=((), (), ())) \
             .map(DIODEDataset.tf_load_pair, num_parallel_calls=tf.data.AUTOTUNE) \
-            .map(lambda i, d: augment(aug_fn, i, d),
-                 num_parallel_calls=tf.data.AUTOTUNE).batch(batch_size) \
+            .map(lambda i, d: augment(aug_fn, i, d), num_parallel_calls=tf.data.AUTOTUNE).batch(batch_size) \
             .map(scale, num_parallel_calls=tf.data.AUTOTUNE).prefetch(tf.data.AUTOTUNE)
 
         val_dataset = tf.data.Dataset.from_generator(dataset.val_data_generator(),
