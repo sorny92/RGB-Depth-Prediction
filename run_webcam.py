@@ -18,11 +18,12 @@ class RTProcess:
         img = cv2.resize(frame, (512, 512))
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img = np.expand_dims(img, 0)
-        img, _ = scale(img, "")
+        img, _ = scale(img, np.zeros((1,1), dtype=np.float32))
 
-        output = self.model.serve(img).numpy()
+        output = self.model.serve(img)
         end = time.time()
 
+        output = (tf.math.exp(output * tf.math.log(tf.constant([20.0]))) - 1.0).numpy()
         output /= np.max(output)
         cv2.putText(frame, f"FPS: {1 / (end - start):0.2f}", (50, 50), cv2.FONT_HERSHEY_PLAIN, 1,
                     (0, 0, 255))
